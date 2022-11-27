@@ -75,13 +75,10 @@ namespace AppWebAPI.Controllers
         [HttpGet("giverole")]
         public async Task<ActionResult> AssignRole(int id)
         {
-            //var name = User.Identity.Name;
 
             var user = _userManager.Users.FirstOrDefault(x => x.Id == id);
             var roles = _roleManager.Roles.ToList();
-            //TempData["UserId"] = user.Id;
             var userroles = await _userManager.GetRolesAsync(user);
-            //List<RoleAssignModel> model = new List<RoleAssignModel>();
             modelrole = new List<RoleAssignModel>();
             foreach (var item in roles)
             {
@@ -101,11 +98,11 @@ namespace AppWebAPI.Controllers
         [HttpPost("giverole")]
         public async Task<IActionResult> AssignRole(int id,List<RoleAssignModel> model)
         {
-            //var userid = (int)TempData["UserId"];
             
-            //var name = User.Identity.Name;
+            
+           
             var user = _userManager.Users.FirstOrDefault(x => x.Id == id);
-            //List<RoleAssignModel> model = modelrole;
+            
             foreach (var item in model)
             {
                 if (item.exists)
@@ -124,42 +121,3 @@ namespace AppWebAPI.Controllers
 
     }
 }
-// Base Model To-Do
-/*
-  [HttpGet]
-        public async Task<IActionResult> AssignRole(int id)
-        {
-            var user = _userManager.Users.FirstOrDefault(x => x.Id == id);
-            var roles = _roleManager.Roles.ToList();
-            TempData["UserId"] = user.Id;
-            var userroles = await _userManager.GetRolesAsync(user);
-            List<RoleAssignViewModel> model = new List<RoleAssignViewModel>();
-            foreach (var item in roles)
-            {
-                RoleAssignViewModel m = new RoleAssignViewModel();
-                m.roleid = item.Id;
-                m.name = item.Name;
-                m.exists = userroles.Contains(item.Name);
-                model.Add(m);
-            }
-            return View(model);
-        }
-        [HttpPost]
-        public async Task<IActionResult> AssignRole(List<RoleAssignViewModel> model)
-        {
-            var userid = (int)TempData["UserId"];
-            var user = _userManager.Users.FirstOrDefault(x => x.Id == userid);
-            foreach (var item in model)
-            {
-                if (item.exists)
-                {
-                    await _userManager.AddToRoleAsync(user, item.name);
-                }
-                else
-                {
-                    await _userManager.RemoveFromRoleAsync(user, item.name);
-                }
-            }
-            return RedirectToAction("UserRoleList");
-        }
- */

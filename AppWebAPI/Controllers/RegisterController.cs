@@ -14,31 +14,13 @@ namespace AppWebAPI.Controllers
     [AllowAnonymous]
     public class RegisterController : ControllerBase
     {
-        /*
-         ProductManager pm = new ProductManager(new IProductRepository());
-        UserManager um = new UserManager(new IUserRepository());
-         */
         private readonly UserManager<AppUser> _userManager;
         public RegisterController(UserManager<AppUser> userManager)
         {
             _userManager = userManager;
         }
 
-        /*
-         [HttpPost]
-        public async Task<ActionResult> AddP(Product p)
-        {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            else pm.TAdd(p);
-            return Ok();
-        }
-        [HttpGet]
-        public async Task<ActionResult> GetP()
-        {
-            var values = pm.GetListAll();
-            return Ok(values);
-        }
-         */
+        
         [HttpPost("user")]
         public async Task<ActionResult> AddU(RegisterModel p)
         {
@@ -75,13 +57,5 @@ namespace AppWebAPI.Controllers
             return Ok(p);
             
         }
-        /*
-         [HttpGet("user")]
-        public async Task<ActionResult> GetU()
-        {
-            var values = um.GetListAll();
-            return Ok(values);
-        }*/
-
     }
 }

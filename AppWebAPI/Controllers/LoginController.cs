@@ -43,30 +43,30 @@ namespace AppWebAPI.Controllers
                 if (result.Succeeded)
                 {
                     
-                    var a = User.Identity.Name;
+                    var username = User.Identity.Name;
                     
-                    var e = "";
-                    var d = 0;
+                    var role = "";
+                    var roleid = 0;
                     
                     
-                    if (a != p.UserName)
-                    { a = p.UserName;
+                    if (username != p.UserName)
+                    { username = p.UserName;
                         
                     }
                     Context c = new Context();
-                    var b = c.Users.Where(x => x.UserName == a).Select(y => y.Id).FirstOrDefault();
-                    if (b != 0)
+                    var userid = c.Users.Where(x => x.UserName == username).Select(y => y.Id).FirstOrDefault();
+                    if (userid != 0)
                     {
-                        d = c.UserRoles.Where(x => x.UserId == b).Select(y => y.RoleId).FirstOrDefault();
+                        roleid = c.UserRoles.Where(x => x.UserId == userid).Select(y => y.RoleId).FirstOrDefault();
                     }
 
-                    if (d != 0)
+                    if (roleid != 0)
                     {
-                        e = c.Roles.Where(x => x.Id == d).Select(y => y.Name).FirstOrDefault();
+                        role = c.Roles.Where(x => x.Id == roleid).Select(y => y.Name).FirstOrDefault();
                     }
                     
-                    //if (a.IsNullOrEmpty() && e.IsNullOrEmpty()) { e = "def"; a = "def"; }
-                    string token = CreateToken(e, a);
+                    
+                    string token = CreateToken(role, username);
                     var newRefreshToken = GenerateRefreshToken();
                     SetRefreshToken(newRefreshToken);
 
@@ -81,7 +81,7 @@ namespace AppWebAPI.Controllers
             }
 
 
-            return BadRequest("Hayır");
+            return BadRequest("User Not Found");
 
         }
 
@@ -108,23 +108,21 @@ namespace AppWebAPI.Controllers
 
 
         }
-        private string CreateToken(string s, string u)
+        private string CreateToken(string role, string user)
         {
 
 
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
-                //"jdfksdfsdfjdfksdfsdfjdfksdfsdf"));
                 _configuration.GetSection("AppSettings:Token").Value));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             List<Claim> claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, u),
-                new Claim(ClaimTypes.Role, s)
+                new Claim(ClaimTypes.Name, user),
+                new Claim(ClaimTypes.Role, role)
             };
             var token = new JwtSecurityToken(
                 claims: claims,
-                //signingCredentials:credentials,
                 notBefore: DateTime.Now,
                 expires: DateTime.Now.AddMinutes(15),
                 signingCredentials: creds);
@@ -137,27 +135,24 @@ namespace AppWebAPI.Controllers
         public async Task<ActionResult> Refresh()
         {
             Context c = new Context();
-            var a = User.Identity.Name;
-            var b = c.Users.Where(x => x.UserName == a).Select(y => y.Id).FirstOrDefault();
-            var d = 0;
-            if (b != 0)
+            var username = User.Identity.Name;
+            var userid = c.Users.Where(x => x.UserName == username).Select(y => y.Id).FirstOrDefault();
+            var roleid = 0;
+            if (userid != 0)
             {
-                d = c.UserRoles.Where(x => x.UserId == b).Select(y => y.RoleId).FirstOrDefault();
+                roleid = c.UserRoles.Where(x => x.UserId == userid).Select(y => y.RoleId).FirstOrDefault();
             }
-            var e = "";
-            if (d != 0)
+            var role = "";
+            if (roleid != 0)
             {
-                e = c.Roles.Where(x => x.Id == d).Select(y => y.Name).FirstOrDefault();
+                role = c.Roles.Where(x => x.Id == roleid).Select(y => y.Name).FirstOrDefault();
             }
-            //if (e == "") { e = "bos," + d.ToString(); } 
-            //if (a.IsNullOrEmpty() && e.IsNullOrEmpty()) { e = "def"; a = "def"; }
             var refreshToken = Request.Cookies["refreshToken"];
-            string token = CreateToken(e, a);
+            string token = CreateToken(role, username);
             var newRefreshToken = GenerateRefreshToken();
             SetRefreshToken(newRefreshToken);
 
             return Ok(token);
-            //return Ok(value);
         }
 
         [HttpPost("logout")]
@@ -168,45 +163,8 @@ namespace AppWebAPI.Controllers
             {
                 return Ok(sout);
             }
-            else return BadRequest("Çıkış yapılamadı.");
+            else return BadRequest("You didnt signout.");
         }
 
-
-        /*
-        private readonly SignInManager<AppUser> _signInManager;
-        public LoginController(SignInManager<AppUser> signInManager)
-        {
-            _signInManager = signInManager;
-        }
-        public async Task<IActionResult> Index(SignInModel p)
-        {
-            if (ModelState.IsValid)
-            {
-                var result = await _signInManager.PasswordSignInAsync(p.UserName, p.Password, false, true);
-                if (result.Succeeded)
-                {
-                    var a = p.UserName;
-                    // You can try add AppUserRoleTable with UserRole and you can true control for login...
-                    if (a == "bekirsahin")
-                    {
-                        
-                    }
-                    else
-                    {
-                        
-                    }
-                }
-                else
-                {
-                    
-                }
-            }
-            return BadRequest("sald");
-        }
-        public async Task<IActionResult> LogOut()
-        {
-            await _signInManager.SignOutAsync();
-            return RedirectToAction("Index", "Login");
-        }*/
     }
 }
